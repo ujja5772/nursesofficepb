@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nurse's Office</title>
+<meta property="og:title" content="Nurse's Office · 보건실">
+<meta property="og:description" content="5학년 영어 11단원 I Have a Headache · 보건 선생님이 되어 읽고, 고르고, 처방해요">
+<meta property="og:image" content="og/home.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -442,6 +446,17 @@ th{white-space:nowrap;font-family:"Jua";font-weight:400;font-size:17px;color:var
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .menu button.shut{opacity:.55;filter:grayscale(.6)}
+.done2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start;max-width:1200px;margin:10px auto}
+.rxpaper{text-align:left;background:#fffdf7;border:3px dashed var(--teal);border-radius:16px;padding:14px 18px;margin:8px 0}
+.rxhead{font-family:Jua;font-size:24px;color:var(--teal)} .rxhead span{font-family:Nunito;font-weight:900;color:var(--ink)}
+.rxmeds{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0} .rxmeds span{display:flex;align-items:center;gap:6px;background:#f1faf8;border-radius:12px;padding:4px 10px 4px 4px;font-weight:800;font-size:16px}
+.rxmeds .pic{width:40px;height:40px}
+.rxbody{font-size:22px;font-weight:800;line-height:1.5} .rxsign{text-align:right;font-family:Nunito;font-weight:900;color:var(--teal);font-size:20px}
+.lvcard{display:flex;flex-direction:column;gap:8px}
+.stamps{display:flex;flex-wrap:wrap;gap:6px} .stamp{width:40px;height:40px;border-radius:50%;border:3px dashed #c9d9d6;display:grid;place-items:center;font-size:22px}
+.stamp.on{border:3px solid var(--red);background:#fff1f2;transform:rotate(-8deg)}
+.nroom{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+@media (max-width:900px){.done2{grid-template-columns:1fr}}
 .share{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}
 .howto ol{margin:0;padding-left:28px;display:grid;gap:12px;font-size:19px}
 .howto li .en{font-size:15px}
@@ -667,7 +682,7 @@ function boardGate(go) {
   if (boardOpen()) return go();
   uiModal(`<p style="font-size:26px;font-family:Jua;margin:0">🔒 전자칠판에서 다 함께 하는 활동이에요</p>
     <p class="eni" style="font-size:18px;margin:6px 0 0">We play this together on the class board.</p>
-    <p style="margin:12px 0 0">크롬북에서는 <b>다 함께 연습하기</b>와 <b>보건실 문진표</b>를 해요.<span class="en">On Chromebooks, use Practice and Patient Forms.</span></p>`, () => {}, '알겠어요<span class="en">OK</span>');
+    <p style="margin:12px 0 0">크롬북에서는 <b>다 함께 연습하기</b>와 <b>보건실 문진표</b>를 해요.<span class="en">On Chromebooks, use Practice and Patient Forms.</span></p>`, () => {}, '알겠어요<span class="en">OK</span>'); const x = document.querySelector('.banner:last-child [data-x]'); if (x) x.remove();
 }
 function home() {
   stopTimer();
@@ -809,7 +824,9 @@ function decForm(t) {
     return { id: strHash(t), avatar, guest_name: g, symptoms: s, card_lines: l };
   } catch (e) { return null; }
 }
-const formLink = f => location.href.split('#')[0].split('?')[0] + '#f=' + encForm(f);
+// 패들렛 미리보기용: p/캐릭터.html 이 캐릭터 그림을 썸네일로 보여 주고 바로 앱으로 넘겨줘요
+const appBase = () => location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '');
+const formLink = f => appBase() + 'p/' + (AVATARS.some(a => a.id === f.avatar) ? f.avatar : 'kid1') + '.html#f=' + encForm(f);
 function linkToForm(txt) { const m = String(txt || '').match(/#f=([A-Za-z0-9_-]+)/); return m ? decForm(m[1]) : null; }
 
 async function copyText(t, okMsg) {
@@ -846,7 +863,7 @@ function writeHub(room) {
         <h3 class="ko" style="font-size:24px;margin:0 0 8px">🩺 이렇게 해요 <span class="eni">How it works</span></h3>
         <ol>
           <li>문진표를 쓰고 <b>완성하기</b>를 눌러요.<span class="en">Write your form.</span></li>
-          <li>그림과 링크를 <b>선생님이 알려 준 패들렛</b>에 올려요.<span class="en">Post the picture and link on Padlet.</span></li>
+          <li>링크를 복사해 <b>선생님이 알려 준 패들렛</b>에 올려요.<span class="en">Post the link on Padlet.</span></li>
           <li>친구들이 <b>댓글</b>로 처방을 달아 줘요.<span class="en">Friends reply in the comments.</span></li>
           <li>제일 마음에 드는 처방 댓글에 <b>❤️</b>를 눌러요.<span class="en">Give ❤️ to your favorite reply.</span></li>
         </ol>
@@ -860,6 +877,7 @@ function writeHub(room) {
         <p>패들렛에서 친구 게시물의 <b>링크</b>를 누르면 진료실이 바로 열려요.<br><b>댓글이 적은 문진표부터</b> 진료해 주세요!<span class="en">Tap the link in a friend's Padlet post. Start with posts with fewer comments!</span></p>
         <div class="row" style="width:100%;gap:8px"><input id="linkIn" placeholder="친구 문진표 링크를 붙여 넣어도 돼요 · Paste a link" style="flex:1;min-width:0" onkeydown="if(event.key==='Enter')openLink()" autocomplete="off"><button onclick="openLink()">열기<span class="en">Open</span></button></div>
       </div>
+      ${levelCard()}
       <div class="panel nr-go">
         <div class="ko" style="font-size:28px">🧸 연습 손님<span class="en">Practice patients</span></div>
         <p>처음이라면 연습 손님으로 먼저 해 봐요. 연습 처방은 패들렛에 올리지 않아요.<span class="en">Try a practice patient first.</span></p>
@@ -885,18 +903,16 @@ function shareScreen() {
   $app.innerHTML = `<div class="wrap">
     <div class="top"><button class="ghost small" onclick="writeHub('patient')">← 돌아가기 <span class="eni">Back</span></button><h2>📤 패들렛에 올리기<span class="en">Post on Padlet</span></h2></div>
     <div class="share">
-      <div class="panel center"><canvas id="cv" style="width:100%;height:auto;border-radius:14px"></canvas></div>
+      <div>${cardView(f)}</div>
       <div class="panel howto">
         <ol>
-          <li><button onclick="saveImg()">🖼️ 그림 저장<span class="en">Save picture</span></button></li>
-          <li><button onclick="copyText(document.getElementById('lnk').value, '🔗 링크를 복사했어요!\\nLink copied!')">🔗 링크 복사<span class="en">Copy link</span></button>
+          <li><button class="sp-go" onclick="copyText(document.getElementById('lnk').value, '🔗 링크를 복사했어요!\\nLink copied!')">🔗 링크 복사<span class="en">Copy link</span></button>
             <textarea id="lnk" readonly rows="2" onfocus="this.select()">${esc(link)}</textarea></li>
-          <li>패들렛에서 <b>＋</b>를 눌러요. 저장한 <b>그림</b>을 올리고, 글 칸에 <b>링크</b>를 붙여 넣어요 (Ctrl+V).<span class="en">On Padlet, tap ＋. Add the picture and paste the link.</span></li>
+          <li>패들렛에서 <b>＋</b>를 누르고, 글 칸에 <b>링크를 붙여 넣어요</b> (Ctrl+V).<br>내 손님 그림이 <b>미리보기</b>로 나와요.<span class="en">On Padlet, tap ＋ and paste the link. Your patient's picture shows up.</span></li>
           <li>제목은 <b>${esc(f.guest_name)}</b>처럼 손님 이름으로 써요.<span class="en">Use the patient's name as the title.</span></li>
         </ol>
-        <p class="muted" style="margin:6px 0 0">문진표를 고치면 그림과 링크를 다시 만들어 올려요.<span class="en">If you edit, post the new picture and link.</span></p>
+        <p class="muted" style="margin:6px 0 0">문진표를 고치면 링크를 다시 복사해서 올려요.<span class="en">If you edit, post the new link.</span></p>
       </div></div></div>`;
-  drawForm(document.getElementById('cv'), f);
 }
 function wrapText(x, text, maxW) {
   const out = []; let cur = '';
@@ -939,18 +955,67 @@ function saveImg() {
   catch (e) { toast('저장이 안 되면 그림을 오른쪽 클릭해서 저장해요\nRight-click the picture to save.', 3000); }
 }
 
-/* ---- 처방 완성 → 댓글로 붙여 넣기 ---- */
+/* ---- 보건 선생님 레벨 (내 크롬북에만 기록) ---- */
+const NLEVELS = [
+  { n: 0, icon: '🩹', ko: '새내기 보건 선생님', en: 'Rookie Nurse' },
+  { n: 2, icon: '🩺', ko: '보건 선생님', en: 'School Nurse' },
+  { n: 4, icon: '💉', ko: '베테랑 보건 선생님', en: 'Expert Nurse' },
+  { n: 7, icon: '🏆', ko: '전설의 보건 선생님', en: 'Legendary Nurse' }
+];
+const nurseRec = () => store.get('pub_nurse') || { ids: [], name: '' };
+const nlevel = n => NLEVELS.filter(l => n >= l.n).pop();
+function stampsHTML(n) {
+  const nx = NLEVELS.find(l => l.n > n);
+  return `<div class="stamps">${Array.from({ length: Math.max(n, 1) }, (_, i) => `<span class="stamp ${i < n ? 'on' : ''}">${i < n ? '💊' : ''}</span>`).join('')}</div>
+    <div class="muted" style="font-size:16px">${nx ? `${nx.icon} ${nx.ko}까지 처방 ${nx.n - n}번 남았어요 · ${nx.n - n} more to level up` : '최고 레벨이에요! · Top level!'}</div>`;
+}
+function levelCard(sign = true) {
+  const r = nurseRec(), n = r.ids.length, lv = nlevel(n);
+  return `<div class="panel lvcard"><div class="row" style="gap:14px;align-items:center">
+      <div style="font-size:54px">${lv.icon}</div>
+      <div style="flex:1"><div class="ko" style="font-size:26px">${lv.ko} <span class="eni">${lv.en}</span></div>
+        <div style="font-size:18px">쓴 처방 <b>${n}</b>장 · ${n} prescriptions</div></div></div>
+      ${stampsHTML(n)}
+      ${sign ? `<div class="row" style="gap:8px;margin-top:10px;width:100%"><span style="font-size:17px">✍️ 내 서명 <span class="eni">My sign</span></span>
+        <span style="font-size:18px">Nurse</span><input id="nName" value="${esc(r.name || '')}" maxlength="12" placeholder="Amy" style="width:140px" autocomplete="off" onchange="saveNurseName(this.value)"></div>
+      <div class="muted" style="font-size:14px">영어 이름이나 별명을 써요 · Use an English name or nickname</div>` : ''}</div>`;
+}
+function saveNurseName(v) {
+  v = String(v || '').trim();
+  if (v && !/^[A-Za-z][A-Za-z .'-]{0,11}$/.test(v)) { toast('영어로 써요\nUse English letters.'); shakeEl('#nName'); return; }
+  const r = nurseRec(); r.name = v; store.set('pub_nurse', r); toast('✍️ 서명 저장!\nSaved!');
+}
+function prescriptionText(text) {
+  const r = nurseRec(), meds = [...NR.sel].map(k => `${MEDS[k].mark} ${MEDS[k].name}`).join(', ');
+  return `💊 처방전 for ${NR.card.guest_name}\nMedicine: ${meds}\n${text}\n- Nurse ${r.name || ''} 🩺`.replace('Nurse  🩺', 'Nurse 🩺');
+}
+
+/* ---- 처방 완성 → 처방전 모양으로 복사해 댓글에 붙여 넣기 ---- */
 function replyDone(text) {
   const sample = String(NR.card.id).startsWith('sample');
-  $app.innerHTML = `<div class="wrap"><div class="panel center" style="max-width:760px;margin:30px auto">
-    ${pic(avImg(NR.card.avatar, 'happy'), '😊', '', 'width:160px;height:160px;font-size:120px')}
-    <p class="ko" style="font-size:26px;margin:6px 0">💊 처방 완성! ${esc(NR.card.guest_name)}이(가) 고마워해요.<span class="en">Great job! ${esc(NR.card.guest_name)} says thank you.</span></p>
-    <div class="envelope rp" style="text-align:left;font-size:22px">${esc(text)}</div>
-    ${sample ? `<p class="muted">연습 손님이라 패들렛에 올리지 않아요. 이제 진짜 친구를 진료해 봐요!<span class="en">This was practice. Now treat a real friend!</span></p>`
-      : `<button class="sp-go" onclick='copyText(${esc(JSON.stringify(text))}, "📋 처방을 복사했어요! 패들렛 댓글에 붙여 넣어요\\nCopied! Paste it as a comment.")'>📋 처방 복사<span class="en">Copy reply</span></button>
-         <p class="ko" style="font-size:20px">패들렛으로 돌아가 <b>${esc(NR.card.guest_name)}</b> 게시물의 <b>댓글</b> 칸에 붙여 넣어요 (Ctrl+V).<span class="en">Go back to Padlet and paste it as a comment.</span></p>`}
-    <div class="row" style="justify-content:center"><button class="ghost" onclick="location.hash='';writeHub('nurse')">📬 다른 손님 진료하기<span class="en">Next patient</span></button></div>
+  let up = null, added = false;
+  if (!sample) {
+    const r = nurseRec();
+    if (!r.ids.includes(NR.card.id)) { added = true; const before = nlevel(r.ids.length); r.ids.push(NR.card.id); store.set('pub_nurse', r); const after = nlevel(r.ids.length); if (after !== before) up = after; }
+  }
+  const rx = prescriptionText(text), n = nurseRec().ids.length;
+  $app.innerHTML = `<div class="wrap"><div class="done2">
+    <div class="panel center">
+      ${pic(avImg(NR.card.avatar, 'happy'), '😊', '', 'width:130px;height:130px;font-size:100px')}
+      <p class="ko" style="font-size:24px;margin:6px 0">💊 처방 완성! ${esc(NR.card.guest_name)}이(가) 고마워해요.<span class="en">Great job! ${esc(NR.card.guest_name)} says thank you.</span></p>
+      <div class="rxpaper"><div class="rxhead">💊 처방전 <span>for ${esc(NR.card.guest_name)}</span></div>
+        <div class="rxmeds">${[...NR.sel].map(k => `<span>${medPic(k)}${MEDS[k].name}</span>`).join('')}</div>
+        <div class="rxbody">${esc(text)}</div>
+        <div class="rxsign">- Nurse ${esc(nurseRec().name || '')} 🩺</div></div>
+      ${sample ? `<p class="muted">연습 손님이라 패들렛에 올리지 않아요. 이제 진짜 친구를 진료해 봐요!<span class="en">This was practice. Now treat a real friend!</span></p>`
+        : `<button class="sp-go" onclick='copyText(${esc(JSON.stringify(rx))}, "📋 처방전을 복사했어요! 패들렛 댓글에 붙여 넣어요\\nCopied! Paste it as a comment.")'>📋 처방전 복사<span class="en">Copy prescription</span></button>
+           <p class="ko" style="font-size:19px;margin:8px 0 0">패들렛으로 돌아가 <b>${esc(NR.card.guest_name)}</b> 게시물의 <b>댓글</b> 칸에 붙여 넣어요 (Ctrl+V).<span class="en">Go back to Padlet and paste it as a comment.</span></p>`}
+      <div class="row" style="justify-content:center;margin-top:10px"><button class="ghost" onclick="location.hash='';writeHub('nurse')">📬 다른 손님 진료하기<span class="en">Next patient</span></button></div>
+    </div>
+    ${sample ? '' : levelCard(false)}
   </div></div>`;
+  if (up) setTimeout(() => { try { sfx('ok'); } catch (e) {} uiModal(`<div style="font-size:90px">${up.icon}</div><p class="ko" style="font-size:32px;margin:0">레벨 업! ${up.ko}</p><p class="eni" style="font-size:22px">Level up! ${up.en}</p>`, () => {}, '좋아요!<span class="en">Yay!</span>'); const x = document.querySelector('.banner:last-child [data-x]'); if (x) x.remove(); }, 400);
+  else if (added) toast(`💊 도장 +1 (${n}장)\nStamp +1!`);
 }
 
 /* ---- 주소 안내: #f=… 이면 바로 진료실 ---- */
@@ -976,7 +1041,7 @@ function guide() {
       <h3>문진표 쓰기 수업 흐름 (패들렛)</h3>
       <ol>
         <li>패들렛을 하나 만들고(담벼락 또는 그리드), 학생들에게 주소를 알려 줘요. 댓글과 반응(❤️)을 켜 두세요.</li>
-        <li>학생은 <b>나는 손님</b>에서 문진표를 쓰고, 그림과 링크를 패들렛에 올려요.</li>
+        <li>학생은 <b>나는 손님</b>에서 문진표를 쓰고, 링크를 패들렛에 붙여 넣어요. 손님 캐릭터 그림이 미리보기로 나와요.</li>
         <li>학생은 친구 게시물의 링크를 눌러 <b>나는 보건 선생님</b> 진료실에서 약을 고르고 처방을 써요. 완성한 처방을 복사해 그 게시물 댓글로 붙여 넣어요.</li>
         <li>"댓글이 적은 문진표부터" 규칙을 정해 주면 골고루 답장을 받아요.</li>
         <li>마지막에 자기 게시물의 댓글을 읽고 제일 좋은 처방에 ❤️를 눌러요.</li>
@@ -1199,7 +1264,7 @@ function guestDraw() {
       ${bankHTML('bankP', BANK_PATIENT)}`;
   } else {
     body = `<h3 class="ko" style="font-size:26px;margin-top:0">완성! 이렇게 보내요<span class="en">Done! Check your form.</span></h3>${cardView(guestCard())}
-      <p class="muted">완성하면 패들렛에 올릴 그림과 링크를 만들어 줘요.<span class="en">Next, we make a picture and a link for Padlet.</span></p>`;
+      <p class="muted">완성하면 패들렛에 올릴 링크를 만들어 줘요.<span class="en">Next, we make a link for Padlet.</span></p>`;
   }
   $app.innerHTML = `<div class="wrap">
     <div class="top"><button class="ghost small" onclick="writeHub('patient')">← 돌아가기 <span class="eni">Back</span></button><h2>① 나는 손님<span class="en">I'm a patient</span></h2></div>
