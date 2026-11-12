@@ -1403,14 +1403,18 @@ async function nrSend() {
 /* =========================================================
    4차시 모둠 스피드 진료 (전자칠판, 서버 저장 없음)
    ========================================================= */
-const SP_NAMES = ['Minho','Jia','Junho','Sora','Dabin','Yuna','Tom','Emma','Ben','Lily','Hana','Max'];
+// 그림 속 아이와 어울리는 이름 (kid1·3·5 남자, kid2·4·6 여자)
+const SP_NAMES = {
+  boy:  ['Minho', 'Junho', 'Jihun', 'Tom', 'Ben', 'Max', 'Leo', 'Sam'],
+  girl: ['Jia', 'Sora', 'Yuna', 'Hana', 'Emma', 'Lily', 'Mia', 'Ella']
+};
+const KID_GIRL = new Set(['kid2', 'kid4', 'kid6']);
 const SP_KIDS = ['kid1','kid2','kid3','kid4','kid5','kid6'];
 const SP_OPEN = ['Hi.', 'Hello.', "I'm sick.", 'Hello, nurse.'];
 const SP_CAUSE = ['I played outside.', 'I went to bed late.', 'I ate ice cream.', 'I ate too much pizza.', 'I played in the snow.', 'I ran very fast.'];
 const a_ = k => `a ${SYM[k].en}`;
 function spPatient(n, used) {
   const pickSyms = shuffle(SYM_KEYS).slice(0, n);
-  const name = shuffle(SP_NAMES.filter(x => !used.has(x)))[0] || 'Sam'; used.add(name);
   const lines = [];
   if (Math.random() < .6) lines.push(shuffle(SP_OPEN)[0]);
   if (n >= 2 && Math.random() < .6) lines.push(shuffle(SP_CAUSE)[0]);
@@ -1438,6 +1442,8 @@ function spPatient(n, used) {
   let feel = null;
   if (Math.random() < .5) { feel = Math.random() < .5 ? 'tired' : 'thirsty'; const lastAnd = /^And /.test(lines[lines.length - 1]); lines.push(!lastAnd && Math.random() < .5 ? `And I'm ${feel}.` : `I'm ${feel}, too.`); }
   const show = shuffle(s)[0], kid = SYM[show].kid;
+  const pool = SP_NAMES[KID_GIRL.has(kid) ? 'girl' : 'boy'];
+  const name = shuffle(pool.filter(x => !used.has(x)))[0] || pool[0]; used.add(name);
   const adv = feel ? adviceFor(feel) : n >= 3 ? 'doctor' : shuffle(['rest', 'wellsoon', 'vitamins'])[0];
   return { name, img: `${kid}_${show}`, happy: `${kid}_happy`, lines, sym: s, feel, adv };
 }
