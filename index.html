@@ -446,6 +446,8 @@ th{white-space:nowrap;font-family:"Jua";font-weight:400;font-size:17px;color:var
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .menu button.shut{opacity:.55;filter:grayscale(.6)}
+.slots{display:flex;gap:10px;margin:0 0 14px}.slots button{flex:1;background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:none;position:relative;font-size:20px}.slots button.on{border-color:var(--red);background:#fff1f2}
+.qrgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.qrcell{border:3px solid var(--line);border-radius:18px;padding:12px;text-align:center;display:grid;gap:8px;justify-items:center}.qrcell canvas{width:100%;max-width:200px;height:auto}
 .done2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start;max-width:1200px;margin:10px auto}
 .rxpaper{text-align:left;background:#fffdf7;border:3px dashed var(--teal);border-radius:16px;padding:14px 18px;margin:8px 0}
 .rxhead{font-family:Jua;font-size:24px;color:var(--teal)} .rxhead span{font-family:Nunito;font-weight:900;color:var(--ink)}
@@ -685,6 +687,7 @@ function boardGate(go) {
     <p style="margin:12px 0 0">크롬북에서는 <b>다 함께 연습하기</b>와 <b>보건실 문진표</b>를 해요.<span class="en">On Chromebooks, use Practice and Patient Forms.</span></p>`, () => {}, '알겠어요<span class="en">OK</span>'); const x = document.querySelector('.banner:last-child [data-x]'); if (x) x.remove();
 }
 function home() {
+  meBye();
   stopTimer();
   $app.innerHTML = `
   <div class="wrap">
@@ -807,6 +810,7 @@ function quizDraw() {
 /* =========================================================
    5차시 WRITING — 보건실 문진표
    ========================================================= */
+function meBye() {}  // 공유판은 로그인이 없어요
 let W = null;
 /* ---- 문진표 ↔ 링크 (서버 없이 주소 안에 담아요) ---- */
 const b64e = t => btoa(unescape(encodeURIComponent(t))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -1144,8 +1148,19 @@ function wordOK(raw, first) {
   return DICT.has(w) || w === 'i';
 }
 // texts 안의 철자/문법 문제를 찾아요 → [{msg, html}]
+// 수업과 상관없는 장난 글 (67, six seven, 같은 말 반복 등)
+const JUNK = [
+  [/(^|\D)6\s*[-~.,]?\s*7(\D|$)/, '67'],
+  [/\bsix\s*-?\s*seven\b|sixseven/i, 'six seven'],
+  [/([a-z])\1{3,}/i, '같은 글자 반복'],
+  [/\b(\w+)\b(?:\W+\1\b){2,}/i, '같은 말 반복'],
+  [/[bcdfghjklmnpqrstvwxz]{5,}/i, '아무렇게나 친 글자']
+];
+function junkIn(t) { const j = JUNK.find(([re]) => re.test(String(t || ''))); return j ? j[1] : null; }
 function englishIssues(texts) {
   const issues = [];
+  texts.filter(Boolean).forEach(t => { const j = junkIn(t); if (j) issues.push(`🚫 <b>${esc(j)}</b>: 수업과 상관없는 말은 쓸 수 없어요. 손님과 처방에 어울리는 문장을 써요. <span class="eni">Please write a sentence that fits the lesson.</span>`); });
+  if (issues.length) return issues;
   texts.filter(Boolean).forEach(t => {
     const flagged = new Set();
     GRAMMAR.forEach(([re, fix, ko]) => { const m = t.match(re); if (m) { issues.push(`📝 <b>${esc(m[0])}</b> → <b>${esc(fix)}</b> · ${esc(ko)}`); m[0].toLowerCase().split(/\s+/).forEach(x => flagged.add(x)); } });
@@ -1167,7 +1182,7 @@ const dkey = kind => `hn_pub_draft_${kind}`;
 function draftSave(kind, data) { try { localStorage.setItem(dkey(kind), JSON.stringify({ t: Date.now(), data })); } catch (e) {} }
 function draftLoad(kind, maxH = 72) { try { const v = JSON.parse(localStorage.getItem(dkey(kind))); return v && Date.now() - v.t < maxH * 3600e3 ? v.data : null; } catch (e) { return null; } }
 function draftClear(kind) { try { localStorage.removeItem(dkey(kind)); } catch (e) {} }
-const wSave = () => { if (W) draftSave('form', { ...W }); };
+const wSave = () => { if (W) draftSave('form' + (W.slot || 1), { ...W }); };
 const nrSave = () => { if (NR) draftSave('reply', { id: NR.card.id, sel: [...NR.sel], step: NR.step, lines: NR.lines }); };
 
 /* ---- 글 고치기 창 (학생·교사 공용) ---- */
@@ -1185,6 +1200,7 @@ function lineEditor(title, guest, lines, onSave, check = true) {
     const g = guest !== null ? d.querySelector('#edG').value.trim() : null;
     const ls = [...d.querySelectorAll('.edL')].map(e => e.value.trim()).filter(Boolean);
     if (guest !== null && !/^[A-Za-z][A-Za-z .'-]{0,14}$/.test(g)) return toast('손님 이름은 영어로 써요\nWrite the name in English.');
+    if (check && guest !== null && junkIn(g)) return toast('🚫 수업에 어울리는 이름으로 써 주세요\nPlease use a proper name.');
     if (!ls.length) return toast('문장이 하나는 있어야 해요\nKeep at least one sentence.');
     if (ls.some(l => !/^[A-Za-z0-9 ,.'!?-]+$/.test(l))) return toast('영어로만 써요\nEnglish only, please.');
     if (check) { await loadWords(); const iss = englishIssues(ls); showIssues('spellE', iss); if (iss.length) return toast('🔍 고칠 곳이 있어요\nPlease fix the words.'); }
@@ -1201,7 +1217,7 @@ function cardView(c) {
 function guestStart() {
   const f = store.get('pub_form');
   W = { step: 0, avatar: f?.avatar || null, guest: f?.guest_name || '', sym: f?.symptoms || [], feel: f?.feel || '', extras: (f?.extra || '').split('\n').concat(['', '']).slice(0, 2), typed: f?.typed || {} };
-  const d = draftLoad('form');
+  const d = draftLoad('form1');
   if (d && d.step != null) { W = { ...W, ...d }; toast('💾 쓰던 문진표를 불러왔어요\nYour draft is back!'); }
   guestDraw();
 }
@@ -1239,7 +1255,7 @@ function guestDraw() {
       <p style="margin-top:18px">손님 이름 <span class="eni">Patient's name (English)</span> &nbsp; <b>Hello, I'm</b> <input id="gName" maxlength="15" value="${esc(W.guest)}" placeholder="Minho / Snowy" style="width:220px"> <b>.</b></p>
       <p class="muted">내 영어 이름도 좋고, 엉뚱한 손님 이름도 좋아요.<span class="en">Use your English name or a funny name.</span></p>`;
   } else if (s === 1) {
-    body = `<h3 class="ko" style="font-size:26px;margin-top:0">어디가 아픈가요? (1~4개)<span class="en">What's wrong? (Choose 1 to 4)</span></h3>
+    body = `<h3 class="ko" style="font-size:26px;margin-top:0">어디가 아픈가요? (2~4개)<span class="en">What's wrong? (Choose 2 to 4)</span></h3>
       <div class="syms">${SYM_KEYS.map(k => `<button class="symbtn ${W.sym.includes(k) ? 'sel' : ''}" onclick="symTap('${k}')"><span class="e">${SYM[k].emoji}</span>${SYM[k].en}<span class="ko" style="font-size:15px">${SYM[k].ko}</span></button>`).join('')}</div>
       <h3 class="ko" style="font-size:24px">기분은 어때요? (선택)<span class="en">How do you feel? (Optional)</span></h3>
       <div class="row">${[['', '🙂 없음 · None'], ['tired', '🥱 tired 피곤해요'], ['thirsty', '🥵 thirsty 목말라요']].map(f => `<button class="${W.feel === f[0] ? '' : 'ghost'}" onclick="W.feel='${f[0]}';guestDraw()">${f[1]}</button>`).join('')}</div>`;
@@ -1302,13 +1318,17 @@ async function guestNext() {
   if (W.step === 0) {
     if (!W.avatar) return toast('손님 그림을 골라 주세요\nChoose a picture.');
     if (!/^[A-Za-z][A-Za-z .'-]{0,14}$/.test(W.guest)) return toast('손님 이름을 영어로 써 주세요\nWrite the name in English.');
+    if (junkIn(W.guest)) return toast('🚫 수업에 어울리는 이름으로 써 주세요\nPlease use a proper name.');
     W.guest = W.guest.replace(/\b[a-z]/g, c => c.toUpperCase());
   }
-  if (W.step === 1 && !W.sym.length) return toast('아픈 곳을 골라 주세요\nChoose what\'s wrong.');
+  if (W.step === 1 && W.sym.length < 2) return toast(W.sym.length ? '아픈 곳을 하나 더 골라 주세요 (2~4개)\nChoose at least 2.' : '아픈 곳을 2개 이상 골라 주세요\nChoose 2 to 4.');
   if (W.step === 2) {
     const bad = guestTargets().filter(t => !t.want.includes(norm(W.typed[t.id])));
     if (bad.length) { toast('✏️ 표시된 문장을 다시 확인해요\nCheck the ✏️ sentences.'); bad.forEach(t => shakeEl('#in_' + t.id)); return; }
     if (W.extras.some(x => x && !engOK(x))) return toast('더 하고 싶은 말은 영어 문장으로 써요\nWrite an English sentence, please.');
+    // 증상은 '증상 고르기'로만: 더 하고 싶은 말에 증상을 쓰면 친구가 약을 고를 때 헷갈려요
+    const symIss = extraSymIssues(W.extras);
+    if (symIss.length) { showIssues('spellP', symIss); toast('🩺 증상은 위에서 골라요\nChoose symptoms above.'); [0, 1].forEach(i => W.extras[i] && shakeEl('#in_x' + i)); return; }
     if (W.extras.some(Boolean)) {
       await loadWords();
       const iss = englishIssues(W.extras);
@@ -1317,6 +1337,32 @@ async function guestNext() {
     }
   }
   W.step++; guestDraw();
+}
+const SYM_RE = {
+  cold: /\b(?:have|has|had|got|get|a)\s+(?:a\s+)?(?:bad\s+)?cold\b(?!\s+(?:water|drink|juice|milk|ice|food|weather|day|wind|room|noodles?))/i,
+  fever: /\bfever\b/i, headache: /\bhead ?ache\b/i, runnynose: /\brunny\s+nose\b/i, stomachache: /\bstomach ?ache\b/i
+};
+function textSyms(lines) {
+  const ls = (lines || []).filter(l => !/\b(?:don'?t|do not|doesn'?t|not)\b/i.test(l));
+  return SYM_KEYS.filter(k => ls.some(l => SYM_RE[k].test(l)));
+}
+function extraSymIssues(extras) {
+  const out = [];
+  SYM_KEYS.forEach(k => {
+    if (!extras.some(x => x && SYM_RE[k].test(x))) return;
+    const s = SYM[k];
+    if (W.sym.includes(k)) out.push(`🩺 <b>${s.en}</b>는 위 칸에 이미 썼어요. 여기에는 <b>아픈 이유</b>나 <b>기분</b>을 써요. <span class="eni">You already wrote it above. Write why, or how you feel.</span>`);
+    else out.push(`🩺 <b>${s.en}</b>(${s.ko})도 아프다면 <b>증상으로 골라야</b> 친구가 알맞은 약을 줄 수 있어요.
+      ${W.sym.length < 4 ? `<button class="small" onclick="addSym('${k}')">➕ ${s.emoji} ${s.en} 증상 추가</button>` : ''} <span class="eni">Add it as a symptom so your friend can give the right medicine.</span>`);
+  });
+  return out;
+}
+function addSym(k) {
+  saveStepInputs();
+  if (!W.sym.includes(k) && W.sym.length < 4) W.sym.push(k);
+  W.extras = W.extras.map(x => x && SYM_RE[k].test(x) ? '' : x);
+  wSave(); guestDraw();
+  toast(`➕ ${SYM[k].en} 추가! 새 칸에 문장을 써요\nWrite the new sentence.`, 2600);
 }
 function guestCard() {
   const T = guestTargets();
@@ -1327,7 +1373,7 @@ function guestCard() {
 }
 function guestSend() {
   const c = guestCard(); c.typed = { ...W.typed };
-  store.set('pub_form', c); draftClear('form');
+  store.set('pub_form', c); draftClear('form1');
   toast('✅ 문진표 완성!\nYour form is ready!'); shareScreen();
 }
 
@@ -1377,7 +1423,8 @@ function nurseDraw() {
 }
 function nrMed(k) { if (NR.step !== 'meds') return; NR.sel.has(k) ? NR.sel.delete(k) : (NR.sel.size < 4 ? NR.sel.add(k) : toast('약은 4개까지!\nUp to 4 medicines.')); nurseDraw(); }
 function nrGive() {
-  const need = NR.card.symptoms || [];
+  const fromText = textSyms(NR.card.card_lines);
+  const need = fromText.length ? fromText : (NR.card.symptoms || []);
   if (NR.sel.size === need.length && need.every(s => NR.sel.has(s))) { NR.step = 'write'; NR.msg = ''; nrSave(); }
   else { NR.sel = new Set(); NR.msg = '음… 문진표를 다시 읽어 볼까요? 📖 · Hmm… read the form again.'; }
   nurseDraw(); if (NR.msg) shakeEl('.cabinet');
