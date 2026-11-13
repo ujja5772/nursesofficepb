@@ -829,7 +829,8 @@ function decForm(t) {
   } catch (e) { return null; }
 }
 // 패들렛 미리보기용: p/캐릭터.html 이 캐릭터 그림을 썸네일로 보여 주고 바로 앱으로 넘겨줘요
-const appBase = () => location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '');
+// p/캐릭터.html 에서도 사이트 맨 위 주소를 쓰도록 (<base href="../">)
+const appBase = () => new URL('.', document.baseURI).href.split('#')[0].split('?')[0];
 const formLink = f => appBase() + 'p/' + (AVATARS.some(a => a.id === f.avatar) ? f.avatar : 'kid1') + '.html#f=' + encForm(f);
 function linkToForm(txt) { const m = String(txt || '').match(/#f=([A-Za-z0-9_-]+)/); return m ? decForm(m[1]) : null; }
 
@@ -1059,7 +1060,7 @@ function clearLocal() { try { Object.keys(localStorage).filter(k => k.startsWith
 
 
 /* ---- 학생용 주소 QR (칠판에 크게) ---- */
-const studentURL = () => location.href.split('#')[0].split('?')[0];
+const studentURL = () => appBase();
 function loadQR() {
   if (window.QRCodeLib) return Promise.resolve();
   return new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'qr.js'; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
@@ -1792,7 +1793,7 @@ function acDone(allClear) {
 }
 
 route();
-window.addEventListener('hashchange', route);
+window.addEventListener('hashchange', () => { if (/#f=/.test(location.hash)) route(); });
 </script>
 </body>
 </html>
