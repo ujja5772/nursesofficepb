@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nurse's Office</title>
 <meta property="og:title" content="Nurse's Office · 보건실">
-<meta property="og:description" content="5학년 영어 11단원 I Have a Headache · 보건 선생님이 되어 읽고, 고르고, 처방해요">
+<meta property="og:description" content="I Have a Headache · 보건 선생님이 되어 읽고, 고르고, 처방해요">
 <meta property="og:image" content="https://nursesofficepb.vercel.app/og/home.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -475,7 +475,7 @@ th{white-space:nowrap;font-family:"Jua";font-weight:400;font-size:17px;color:var
 <script>
 /* =========================================================
    Nurse's Office (보건실)
-   5학년 영어 11단원 I Have a Headache · 만든 이: Tr. Olivia
+   Nurse's Office · 만든 이: Tr. Olivia
    ========================================================= */
 /* ---------- data ---------- */
 const SYM = {
@@ -704,7 +704,7 @@ function home() {
           <button class="ghost ${boardOpen() ? '' : 'shut'}" onclick="boardGate(acSetup)"><span class="em">${boardOpen() ? '🎭' : '🔒'}</span><span>몸으로 말해요 <span class="eni">Act It Out</span><small>친구들의 몸짓을 보고 영어 문장으로 맞혀요<br>Watch and guess the sentence in English</small></span></button>` : ''}
           <button class="red" onclick="writeHub('patient')"><span class="em">📋</span><span>보건실 문진표 <span class="eni">Patient Forms</span><small>문진표를 쓰고, 패들렛에서 친구에게 처방해 줘요<br>Write a form and reply to friends on Padlet</small></span></button>
         </div>
-        <div class="credit">5학년 영어 11. I Have a Headache · 만든 이 Tr. Olivia</div>
+        <div class="credit">만든 이 Tr. Olivia</div>
         <div class="center" style="margin-top:18px">${boardOpen() ? `<button class="ghost small teacher-btn" onclick="guide()">🗂️ 선생님 안내 · Guide</button><button class="ghost small teacher-btn" style="margin-left:8px" onclick="showQR()">📱 학생용 QR</button>` : ''}
           ${boardOpen() ? `<button class="ghost small teacher-btn" style="margin-left:8px" onclick="boardLock()">🔒 칠판 활동 잠그기 · Lock</button>` : ''}</div>
       </div>
@@ -1053,7 +1053,7 @@ function guide() {
       <p class="muted">패들렛 게시자 이름은 번호나 별명으로 쓰게 하거나, 패들렛의 익명 게시 설정을 쓰면 개인정보를 더 줄일 수 있어요.</p>
       <div class="row" style="margin-top:10px"><button onclick="showQR()">📱 학생용 QR 코드</button><button class="ghost" onclick="boardLock()">🔒 이 기기 칠판 활동 잠그기</button>
         <button class="ghost" onclick="uiConfirm('이 기기에 남은 문진표와 쓰던 글을 지울까요?\\nClear saved forms on this device?', clearLocal)">🧹 이 기기 글 지우기</button></div>
-      <p class="credit" style="margin-top:14px">5학년 영어 11. I Have a Headache · 만든 이 Tr. Olivia</p>
+      <p class="credit" style="margin-top:14px">만든 이 Tr. Olivia</p>
     </div></div>`;
 }
 function clearLocal() { try { Object.keys(localStorage).filter(k => k.startsWith('hn_pub_')).forEach(k => localStorage.removeItem(k)); } catch (e) {} toast('지웠어요\nCleared.'); }
