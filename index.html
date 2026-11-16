@@ -393,14 +393,33 @@ th{white-space:nowrap;font-family:"Jua";font-weight:400;font-size:17px;color:var
 .ln b{display:inline-block;min-width:110px;font-family:"Jua";font-weight:400;color:var(--ink)}
 .ln em{color:#5d807b;font-style:normal;font-family:"Jua";font-size:15px;font-weight:400}
 .gc{border-top:2px dashed #cfe4df;margin-top:12px;padding-top:8px;font-size:15px}
+.ln .who{font-family:"Jua";color:var(--teal);font-size:.85em}
+.medrow{border-top:2px dashed #cfe4df;margin-top:10px;padding-top:6px;font-size:15px}
+.owner{margin-top:6px;font-size:14px;color:#5d807b}
+.nameline{display:block;border-bottom:1.5px solid #9ab;min-height:30px;color:#b4c6c2;font-size:12px;padding-top:12px}
+#printArea .medcard img{display:block}
 #printArea{display:none}
 @media print{
   body{background:#fff}
   body > *:not(#printArea){display:none!important}
   #printArea{display:block}
-  .scr{border:0;padding:0;margin:0;page-break-after:always;break-after:page}
-  .scr:last-child{page-break-after:auto}
-  @page{size:A4;margin:16mm}
+  .sheet2{display:grid;grid-template-columns:1fr 1fr;gap:10mm;page-break-after:always;break-after:page;height:190mm;overflow:hidden}
+  .sheet2:last-child{page-break-after:auto;break-after:auto}
+  .sheet2 .scr{border:0;border-right:1px dashed #bbb;border-radius:0;padding:0 6mm 0 0;margin:0}
+  .sheet2 .scr:last-child{border-right:0}
+  .sheet2 .scr h2{font-size:30px}
+  .sheet2 .ln{font-size:21px;margin:5px 0;line-height:1.45}
+  .sheet2 .ln b{min-width:0;margin-right:8px;font-size:17px}
+  .sheet2 .scene{font-size:22px;margin:14px 0 4px}
+  .sheet2 .roles div{font-size:18px}
+  .sheet2 .medrow{font-size:17px}
+  .sheet2 .owner{font-size:15px}
+  .sheet2 .roles{grid-template-columns:repeat(3,1fr)}
+  .medcard{page-break-after:always;break-after:page;height:185mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .medcard:last-child{page-break-after:auto;break-after:auto}
+  .medcard img{height:125mm;width:auto;max-width:250mm;object-fit:contain}
+  .medcard .mn{font-family:"Nunito";font-weight:900;font-size:64px;color:#1E4844;margin-top:6mm}
+  .medcard .mk{font-family:"Jua";font-size:36px;color:#5d807b}
 }
 /* ===== speed clinic (전자칠판) ===== */
 .sp-top{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin-bottom:12px}
@@ -448,6 +467,10 @@ th{white-space:nowrap;font-family:"Jua";font-weight:400;font-size:17px;color:var
 .menu button.shut{opacity:.55;filter:grayscale(.6)}
 .slots{display:flex;gap:10px;margin:0 0 14px}.slots button{flex:1;background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:none;position:relative;font-size:20px}.slots button.on{border-color:var(--red);background:#fff1f2}
 .qrgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.qrcell{border:3px solid var(--line);border-radius:18px;padding:12px;text-align:center;display:grid;gap:8px;justify-items:center}.qrcell canvas{width:100%;max-width:200px;height:auto}
+.stepper{display:inline-flex;align-items:center;gap:4px;font-family:Jua;font-size:18px;border:2px solid var(--line);border-radius:12px;padding:2px 8px}.stepper b{min-width:22px;text-align:center;font-size:20px}
+.scr-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:14px;color:#a05a5a}.scr-tools s{color:#999}
+.ln [contenteditable]:focus{outline:2px dashed var(--sun);background:#fffbe8}
+@media print{.noprint{display:none!important}}
 .done2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start;max-width:1200px;margin:10px auto}
 .rxpaper{text-align:left;background:#fffdf7;border:3px dashed var(--teal);border-radius:16px;padding:14px 18px;margin:8px 0}
 .rxhead{font-family:Jua;font-size:24px;color:var(--teal)} .rxhead span{font-family:Nunito;font-weight:900;color:var(--ink)}
@@ -1110,8 +1133,25 @@ const GRAMMAR = [
   [/\bI have (cold|fever|headache|runny nose|stomachache|toothache)\b/i, 'I have a ___', "아픈 곳 앞에 a를 넣어요. (I have a cold.)"],
   [/\btoo much (candies|cookies|chips|apples)\b/i, 'too many', "셀 수 있는 것(-s)에는 too many를 써요."],
   [/\bdon't eats\b/i, "don't eat", "don't 다음에는 eat을 그대로 써요."],
-  [/\bget some sleeps\b/i, 'get some sleep', "sleep에는 s를 붙이지 않아요."]
+  [/\bget some sleeps\b/i, 'get some sleep', "sleep에는 s를 붙이지 않아요."],
+  [/\bmach\b/i, 'much', "'많이'는 much예요."], [/\bto much\b/i, 'too much', "'너무 많이'는 too much예요."],
+  [/\bgo to (the |my |your )?home\b/i, 'go home', "home 앞에는 to를 쓰지 않아요. (go home)"],
+  [/\bdon'?t (ate|drank|said|played)\b/i, "don't + 동사원형", "don't 다음에는 eat, drink처럼 원래 모양을 써요."],
+  [/\bI want too? go\b/i, 'I want to go', "want 다음에는 to go를 써요."],
+  [/\bcan I ate\b/i, 'Can I eat', "Can I 다음에는 원래 모양(eat)을 써요."],
+  [/\b(gat|ger|som|were a warm)\b/i, 'get / some / wear', "철자를 확인해요."],
+  [/\bget will soon\b/i, 'get well soon', "well이 맞아요."], [/\bgo to bad\b/i, 'go to bed', "침대는 bed예요."]
 ];
+// 문장 부호 확인
+function punctIssues(t) {
+  const out = [];
+  if (/[!?.]{3,}|[!?]{2,}/.test(t)) out.push('❗ 문장 부호는 하나만 써요. (!!! → !) <span class="eni">Use one punctuation mark.</span>');
+  t.split(/(?<=[.!?])\s+/).forEach(x => {
+    if (/^(can|may|do|did|does|are|is|what|where|why|how|will|could|should)\b/i.test(x.trim()) && /\.$/.test(x.trim())) out.push(`❓ <b>${esc(x.trim())}</b> → 묻는 문장은 물음표(?)로 끝나요. <span class="eni">Questions end with ?</span>`);
+  });
+  if (/[a-z][A-Z]/.test(t)) out.push('🔠 대문자는 문장 첫 글자와 이름에만 써요. <span class="eni">Use capitals only at the start.</span>');
+  return out;
+}
 function editDist(a, b) {
   if (Math.abs(a.length - b.length) > 2) return 9;
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
@@ -1155,7 +1195,9 @@ const JUNK = [
   [/\bsix\s*-?\s*seven\b|sixseven/i, 'six seven'],
   [/([a-z])\1{3,}/i, '같은 글자 반복'],
   [/\b(\w+)\b(?:\W+\1\b){2,}/i, '같은 말 반복'],
-  [/[bcdfghjklmnpqrstvwxz]{5,}/i, '아무렇게나 친 글자']
+  [/[bcdfghjklmnpqrstvwxz]{5,}/i, '아무렇게나 친 글자'],
+  [/\d{4,}/, '긴 숫자'],
+  [/\b(die|died|dead|dying|kill|poison|uranium|titanium|gangster|stupid|idiot|ugly|pig|dirty|alive|covid|get out|go away|so what|prettiest|dinosaur)\b/i, '수업에 어울리지 않는 말']
 ];
 function junkIn(t) { const j = JUNK.find(([re]) => re.test(String(t || ''))); return j ? j[1] : null; }
 function englishIssues(texts) {
@@ -1165,6 +1207,7 @@ function englishIssues(texts) {
   texts.filter(Boolean).forEach(t => {
     const flagged = new Set();
     GRAMMAR.forEach(([re, fix, ko]) => { const m = t.match(re); if (m) { issues.push(`📝 <b>${esc(m[0])}</b> → <b>${esc(fix)}</b> · ${esc(ko)}`); m[0].toLowerCase().split(/\s+/).forEach(x => flagged.add(x)); } });
+    punctIssues(t).forEach(x => issues.push(x));
     (t.match(/[A-Za-z’']+/g) || []).forEach((w, i) => {
       if (!flagged.has(w.toLowerCase()) && !wordOK(w, i === 0)) { const sg = suggest(w.toLowerCase()); issues.push(`🔤 <b>${esc(w)}</b>: 사전에 없는 단어예요${sg.length ? ` → 혹시 <b>${sg.map(esc).join(', ')}</b>?` : '. 철자를 확인해요.'}`); }
     });
